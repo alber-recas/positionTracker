@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(offb)
+project(position_tracker)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -101,7 +101,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     # INCLUDE_DIRS include
-    LIBRARIES offb
+    LIBRARIES position_tracker
     CATKIN_DEPENDS roscpp
     DEPENDS system_lib
 )
@@ -118,32 +118,27 @@ include_directories(
 )
 
 # Declare a C++ library
-add_library(offb
-    src/offb_main.cpp
+add_library(position_tracker
+    src/position_tracker_main.cpp
 )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(offb ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(position_tracker ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(offb_main src/offb_main.cpp)
-add_executable(offb_circ src/offb_circ.cpp)
+add_executable(position_tracker_main src/position_tracker_main.cpp)
 add_executable(roverPosSim src/roverPosSim.cpp)
 
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(offb_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(offb_circ ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(position_tracker_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(roverPosSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
-target_link_libraries(offb_main
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(offb_circ
+target_link_libraries(position_tracker_main
   ${catkin_LIBRARIES}
 )
 target_link_libraries(roverPosSim
