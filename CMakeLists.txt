@@ -105,8 +105,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES position_tracker
-    CATKIN_DEPENDS roscpp
-    DEPENDS system_lib
+    CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
+    #DEPENDS system_lib
 )
 
 ###########
@@ -117,38 +117,27 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-    ${catkin_INCLUDE_DIRS}
     include
+    ${catkin_INCLUDE_DIRS}
 )
 
 # Declare a C++ library
-add_library(position_tracker
-    src/position_tracker_main.cpp
-)
+#add_library(position_tracker
+#    src/position_tracker_main.cpp
+#)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(position_tracker ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(position_tracker ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 add_executable(position_tracker_main src/position_tracker_main.cpp)
+target_link_libraries(position_tracker_main ${catkin_LIBRARIES})
+
 add_executable(roverPosSim src/roverPosSim.cpp)
-
-
-## Add cmake target dependencies of the executable
-## same as for the library above
-add_dependencies(position_tracker_main ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(roverPosSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-# Specify libraries to link a library or executable target against
-target_link_libraries(position_tracker_main
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(roverPosSim
-  ${catkin_LIBRARIES}
-)
-
+target_link_libraries(roverPosSim ${catkin_LIBRARIES})
+#add_dependencies(roverPosSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##
