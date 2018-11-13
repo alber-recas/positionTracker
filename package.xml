@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<package>
-  <name>position_tracker</name>
+<package format="2">
+  <name>rover</name>
   <version>0.1.0</version>
   <description>Offboard control using ROS and MAVROS for PX4</description>
 
@@ -33,8 +33,8 @@
   <!--   <build_depend>message_generation</build_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
-  <!-- Use run_depend for packages you need at runtime: -->
-  <!--   <run_depend>message_runtime</run_depend> -->
+  <!-- Use exec_depend for packages you need at runtime: -->
+  <!--   <exec_depend>message_runtime</exec_depend> -->
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
@@ -43,10 +43,10 @@
   <build_depend>message_generation</build_depend>
   <build_depend>geometry_msgs</build_depend>
 
-  <run_depend>roscpp</run_depend>
-  <run_depend>mavros</run_depend>
-  <run_depend>message_runtime</run_depend>
-  <run_depend>geometry_msgs</run_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>mavros</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
 
 
 

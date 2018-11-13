@@ -42,10 +42,6 @@ namespace rover_position_simulator {
 		}else{
 			new_pos.position.y = m_actual_pos.position.y - step;
 		}
-		// Pose distance;
-		// distance.position.x = abs(m_init_pos.position.x - m_goal_pos.position.x);
-		// distance.position.y = abs(m_init_pos.position.y - m_goal_pos.position.y);
-		// distance.position.z = abs(m_init_pos.position.z - m_goal_pos.position.z);
 
 		m_pos_pub.publish(new_pos);
 		m_actual_pos = new_pos;
@@ -56,7 +52,7 @@ namespace rover_position_simulator {
 using namespace rover_position_simulator;
 int main(int argc, char **argv)
 {
-	//ROS_INFO("Entering node");
+	ROS_INFO("Entering node");
 	ros::init(argc, argv, "position_tracker_node");
 
 	ros::NodeHandle nh;

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rover)
+project(position)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -104,9 +104,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
     INCLUDE_DIRS include
-    LIBRARIES position
-    CATKIN_DEPENDS roscpp
-    #DEPENDS system_lib
+    LIBRARIES position_tracker
+    CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
+    DEPENDS system_lib
 )
 
 ###########
@@ -122,8 +122,8 @@ include_directories(
 )
 
 # Declare a C++ library
-#add_library(offb
-#    src/offb_main.cpp
+#add_library(position_tracker
+#    src/roverPosSim.cpp
 #)
 
 ## Add cmake target dependencies of the library
@@ -131,16 +131,13 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 
 ## Declare a C++ executable
+#add_executable(position_tracker_main src/position_tracker_main.cpp)
+#target_link_libraries(position_tracker_main ${catkin_LIBRARIES})
+
+
 add_executable(roverPosSim src/roverPosSim.cpp)
-add_executable(offbPIDvel src/offbPIDvel.cpp)
+target_link_libraries(roverPosSim ${catkin_LIBRARIES})
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-#add_dependencies(roverPosSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-# Specify libraries to link a library or executable target against
-target_link_libraries(roverPosSim  ${catkin_LIBRARIES})
-target_link_libraries(offbPIDvel  ${catkin_LIBRARIES})
 
 #############
 ## Install ##
