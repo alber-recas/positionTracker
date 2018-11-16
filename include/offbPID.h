@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <stdlib.h>
 #include "geometry_msgs/Pose.h"
+#include "pid.h"
 
 using namespace geometry_msgs;
 using namespace std;
@@ -23,6 +24,7 @@ namespace offbPID {
   Pose m_actualPose;
   Pose m_finalPose;
 
+	PID m_pid;
 
   };
 }

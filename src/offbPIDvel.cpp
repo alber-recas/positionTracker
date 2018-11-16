@@ -11,6 +11,8 @@
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 #include "math.h"
+#include "pid.h"
+
 
 double r=2;
 double h=2;
@@ -22,6 +24,14 @@ geometry_msgs::PoseStamped pose;
 geometry_msgs::TwistStamped vel;
 geometry_msgs::TwistStamped vel_up;
 
+// dt -  loop interval time
+// max - maximum value of manipulated variable
+// min - minimum value of manipulated variable
+// Kp -  proportional gain
+// Kd -  derivative gain
+// Ki -  Integral gain
+//PID pid = PID(0.3, 4, 0, 0.1, 0.01, 0.5);
+PID pid = PID(0.2, 3, -3, 0.1, 0, 0);
 
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -62,7 +72,7 @@ void newVel(int i){
 
 int main(int argc, char **argv)
 {
-	ROS_INFO("Entering node");
+	 ROS_INFO("Entering node");
     ros::init(argc, argv, "offb_node");
     ros::NodeHandle nh;
 
@@ -149,13 +159,12 @@ int main(int argc, char **argv)
 				newVel(count);
         //local_pos_pub.publish(pose);
 
-        if(current_pose.pose.position.z<10){
-            vel_up.twist.linear.z += 0.1;
-            local_vel_pub.publish(vel_up);
-        }else{
-            vel_up.twist.linear.z -= 0.1;
-            local_vel_pub.publish(vel_up);
-        }
+        vel_up.twist.linear.z = pid.calculate(10,current_pose.pose.position.z);
+        local_vel_pub.publish(vel_up);
+
+        ROS_INFO("Velocity: %f",vel_up.twist.linear.z );
+
+
         ros::spinOnce();
         rate.sleep();
     }

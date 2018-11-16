@@ -132,7 +132,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(roverPosSim src/roverPosSim.cpp)
-add_executable(offbPIDvel src/offbPIDvel.cpp)
+add_executable(offbPIDvel src/offbPIDvel.cpp src/pid.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
