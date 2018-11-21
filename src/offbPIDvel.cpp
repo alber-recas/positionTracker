@@ -10,6 +10,13 @@
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
+
+#include <std_msgs/MultiArrayLayout.h>
+#include <std_msgs/MultiArrayDimension.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Float64.h>
+
+
 #include "math.h"
 #include "pid.h"
 
@@ -23,6 +30,7 @@ double wn=1;
 geometry_msgs::PoseStamped pose;
 geometry_msgs::TwistStamped vel;
 geometry_msgs::TwistStamped vel_up;
+double targetPosZ=10;
 
 // dt -  loop interval time
 // max - maximum value of manipulated variable
@@ -30,8 +38,17 @@ geometry_msgs::TwistStamped vel_up;
 // Kp -  proportional gain
 // Kd -  derivative gain
 // Ki -  Integral gain
-//PID pid = PID(0.3, 4, 0, 0.1, 0.01, 0.5);
-PID pid = PID(0.2, 3, -3, 0.1, 0, 0);
+//PID pid = PID(0.2, 3, -3, 0.3, 0, 0); //Funcional
+PID pid = PID(0.2, 3, -3, 0.3, 0, 0);
+
+void targetUpdater_cb(const std_msgs::Float64::ConstPtr& msg){
+  targetPosZ = msg->data;
+}
+
+void pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
+  pid.updateCoefficients(0.2,3,-3,msg->data[0],msg->data[1],msg->data[2]);
+  ROS_INFO("PID Updated with %2f %2f %2f",msg->data[0],msg->data[1],msg->data[2]);
+}
 
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -76,6 +93,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "offb_node");
     ros::NodeHandle nh;
 
+    ros::Subscriber targetUpdater_sub = nh.subscribe<std_msgs::Float64>
+            ("drone/targetPos", 10, targetUpdater_cb);
+    ros::Subscriber pidUpdater_sub = nh.subscribe<std_msgs::Float64MultiArray>
+            ("pid/pose", 10, pidUpdater_cb);
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, state_cb);
     ros::Subscriber local_pos_sub = nh.subscribe<geometry_msgs::PoseStamped>
@@ -152,18 +173,18 @@ int main(int argc, char **argv)
             }
         }
 
-   	   	count++;
-				if(count==5)
-					count=0;
 
-				newVel(count);
+				//newVel(count);
         //local_pos_pub.publish(pose);
 
-        vel_up.twist.linear.z = pid.calculate(10,current_pose.pose.position.z);
+        vel_up.twist.linear.z = pid.calculate(targetPosZ,current_pose.pose.position.z);
         local_vel_pub.publish(vel_up);
 
-        ROS_INFO("Velocity: %f",vel_up.twist.linear.z );
-
+        count++;
+        if(count==100){
+          count=0;
+          ROS_INFO("Velocity: %.2f Position: %.3f",vel_up.twist.linear.z,current_pose.pose.position.z );
+        }
 
         ros::spinOnce();
         rate.sleep();
