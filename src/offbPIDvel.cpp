@@ -30,6 +30,8 @@ double wn=1;
 geometry_msgs::PoseStamped pose;
 geometry_msgs::TwistStamped vel;
 geometry_msgs::TwistStamped vel_up;
+double targetPosX=0;
+double targetPosY=0;
 double targetPosZ=10;
 
 // dt -  loop interval time
@@ -39,14 +41,31 @@ double targetPosZ=10;
 // Kd -  derivative gain
 // Ki -  Integral gain
 //PID pid = PID(0.2, 3, -3, 0.3, 0, 0); //Funcional
-PID pid = PID(0.2, 3, -3, 0.3, 0, 0);
+PID pidX = PID(0.2, 3, -3, 0.3, 0, 0);
+PID pidY = PID(0.2, 3, -3, 0.3, 0, 0);
+PID pidZ = PID(0.2, 3, -3, 0.3, 0, 0);
 
-void targetUpdater_cb(const std_msgs::Float64::ConstPtr& msg){
-  targetPosZ = msg->data;
+void targetUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
+  targetPosX = msg->data[0];
+  targetPosY = msg->data[1];
+  targetPosZ = msg->data[2];
 }
 
 void pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
-  pid.updateCoefficients(0.2,3,-3,msg->data[0],msg->data[1],msg->data[2]);
+  switch((int)msg->data[0]){
+    case 0:
+      pidX.updateCoefficients(0.2,3,-3,msg->data[1],msg->data[2],msg->data[3]);
+    break;
+    case 1:
+      pidY.updateCoefficients(0.2,3,-3,msg->data[1],msg->data[2],msg->data[3]);
+    break;
+    case 2:
+      pidZ.updateCoefficients(0.2,3,-3,msg->data[1],msg->data[2],msg->data[3]);
+    break;
+    default:
+      ROS_INFO("Bad PID axis selected");
+    break;
+  }
   ROS_INFO("PID Updated with %2f %2f %2f",msg->data[0],msg->data[1],msg->data[2]);
 }
 
@@ -93,10 +112,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "offb_node");
     ros::NodeHandle nh;
 
-    ros::Subscriber targetUpdater_sub = nh.subscribe<std_msgs::Float64>
+    ros::Subscriber targetUpdater_sub = nh.subscribe<std_msgs::Float64MultiArray>
             ("drone/targetPos", 10, targetUpdater_cb);
     ros::Subscriber pidUpdater_sub = nh.subscribe<std_msgs::Float64MultiArray>
-            ("pid/pose", 10, pidUpdater_cb);
+            ("pid/updateCoefficients", 10, pidUpdater_cb);
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, state_cb);
     ros::Subscriber local_pos_sub = nh.subscribe<geometry_msgs::PoseStamped>
@@ -177,13 +196,24 @@ int main(int argc, char **argv)
 				//newVel(count);
         //local_pos_pub.publish(pose);
 
-        vel_up.twist.linear.z = pid.calculate(targetPosZ,current_pose.pose.position.z);
+        vel_up.twist.linear.x = pidZ.calculate(targetPosX,current_pose.pose.position.x);
+        vel_up.twist.linear.y = pidZ.calculate(targetPosY,current_pose.pose.position.y);
+        vel_up.twist.linear.z = pidZ.calculate(targetPosZ,current_pose.pose.position.z);
         local_vel_pub.publish(vel_up);
 
         count++;
         if(count==100){
           count=0;
-          ROS_INFO("Velocity: %.2f Position: %.3f",vel_up.twist.linear.z,current_pose.pose.position.z );
+          ROS_INFO("Velocity: [%.2f,%.2f,%.2f] ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
+          vel_up.twist.linear.x,
+          vel_up.twist.linear.y,
+          vel_up.twist.linear.z,
+          current_pose.pose.position.x,
+          current_pose.pose.position.y,
+          current_pose.pose.position.z,
+          targetPosX,
+          targetPosY,
+          targetPosZ );
         }
 
         ros::spinOnce();
