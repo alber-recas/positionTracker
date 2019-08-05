@@ -4,7 +4,7 @@ namespace rover_position_simulator {
 
 	RoverPosSim::RoverPosSim():m_nh("~"){
 
-		m_pos_pub = m_nh.advertise<geometry_msgs::Pose>( "/actual_pos", 10 );
+		m_pos_pub = m_nh.advertise<geometry_msgs::Pose>( "drone/targetPos", 10 );
 		m_vel_sub = m_nh.subscribe("/vel", 1, &RoverPosSim::updateVel, this);
 		m_init_sub = m_nh.subscribe("/init_pos", 1, &RoverPosSim::updateInitPos, this);
 		m_goal_sub = m_nh.subscribe("/goal_pos", 1, &RoverPosSim::updateGoalPos, this);
@@ -25,14 +25,14 @@ namespace rover_position_simulator {
 	void RoverPosSim::updateActualPos(){
 
 		Pose actualPose = m_actual_pos;
-		Pose new_pos;
+		Pose new_pos = m_actual_pos;
 		float step = m_vel/m_sampleRate;
 
-		if(m_actual_pos.position.y == m_goal_pos.position.y){
+		if(m_actual_pos.position.y >= m_goal_pos.position.y){
 			m_goalReached = true;
 		}
 
-		if(m_actual_pos.position.y == m_init_pos.position.y){
+		if(m_actual_pos.position.y <= m_init_pos.position.y){
 			m_goalReached = false;
 		}
 
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle nh;
 
 	RoverPosSim roverPosSim;
-	roverPosSim.m_sampleRate=20;
+	roverPosSim.m_sampleRate=10;
 	ros::Rate loop_rate(roverPosSim.m_sampleRate);
 
 	//Default initial values for position and velocity
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	roverPosSim.m_actual_pos = roverPosSim.m_init_pos;
 
 	while (ros::ok()){
-		//roverPosSim.updateActualPos();
+		roverPosSim.updateActualPos();
 		ros::spinOnce();
 		loop_rate.sleep();
 	}

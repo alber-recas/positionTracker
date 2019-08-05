@@ -46,12 +46,17 @@ PID pidY = PID(0.2, 3, -3, 0.3, 0, 0);
 PID pidZ = PID(0.2, 3, -3, 0.3, 0, 0);
 
 void targetUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
-  targetPosX = msg->data[0];
-  targetPosY = msg->data[1];
-  targetPosZ = msg->data[2];
+  if(msg->data[1]>0 && msg->data[1]>0 && msg->data[2]>0){
+    targetPosX = msg->data[0];
+    targetPosY = msg->data[1];
+    targetPosZ = msg->data[2];
+  }else{
+    ROS_INFO("Bad target configuration.");
+  }
 }
 
 void pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
+  //First Position of the array will choose the PID of one axis to update.
   switch((int)msg->data[0]){
     case 0:
       pidX.updateCoefficients(0.2,3,-3,msg->data[1],msg->data[2],msg->data[3]);
@@ -66,7 +71,7 @@ void pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
       ROS_INFO("Bad PID axis selected");
     break;
   }
-  ROS_INFO("PID Updated with %2f %2f %2f",msg->data[0],msg->data[1],msg->data[2]);
+  ROS_INFO("PID Updated with %2f %2f %2f",msg->data[1],msg->data[2],msg->data[3]);
 }
 
 mavros_msgs::State current_state;
@@ -79,41 +84,16 @@ void pose_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
     current_pose = *msg;
 }
 
-void newVel(int i){
-
-	switch (i) {
-		case 0:
-		vel.twist.linear.x = 3;
-		vel.twist.linear.y = 0;
-		vel.twist.linear.z = 1;
-		break;
-		case 1:
-		vel.twist.linear.x = 0;
-		vel.twist.linear.y = 3;
-		vel.twist.linear.z = 1;
-		break;
-		case 2:
-		vel.twist.linear.x = -3;
-		vel.twist.linear.y = 0;
-		vel.twist.linear.z = 1;
-		break;
-		case 4:
-		vel.twist.linear.x = 0;
-		vel.twist.linear.y = -3;
-		vel.twist.linear.z = 1;
-		break;
-	}
-
-}
-
 int main(int argc, char **argv)
 {
-	 ROS_INFO("Entering node");
+	  ROS_INFO("Entering node");
     ros::init(argc, argv, "offb_node");
     ros::NodeHandle nh;
 
     ros::Subscriber targetUpdater_sub = nh.subscribe<std_msgs::Float64MultiArray>
             ("drone/targetPos", 10, targetUpdater_cb);
+    ros::Publisher actualPose_pub = nh.advertise<geometry_msgs::PoseStamped>
+            ("drone/actualPose", 10);
     ros::Subscriber pidUpdater_sub = nh.subscribe<std_msgs::Float64MultiArray>
             ("pid/updateCoefficients", 10, pidUpdater_cb);
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
@@ -169,7 +149,7 @@ int main(int argc, char **argv)
     vel_up.twist.linear.z = 0;
     vel_up.twist.angular.x = 0;
     vel_up.twist.angular.y = 0;
-    vel_up.twist.angular.z = 0;
+    vel_up.twist.angular.z = 2;
 
 
     while(ros::ok()){
@@ -192,14 +172,16 @@ int main(int argc, char **argv)
             }
         }
 
-
-				//newVel(count);
-        //local_pos_pub.publish(pose);
-
-        vel_up.twist.linear.x = pidZ.calculate(targetPosX,current_pose.pose.position.x);
-        vel_up.twist.linear.y = pidZ.calculate(targetPosY,current_pose.pose.position.y);
+        //Update all the velocities in the Drone
+        vel_up.twist.linear.x = pidX.calculate(targetPosX,current_pose.pose.position.x);
+        vel_up.twist.linear.y = pidY.calculate(targetPosY,current_pose.pose.position.y);
         vel_up.twist.linear.z = pidZ.calculate(targetPosZ,current_pose.pose.position.z);
+
+        //Send through MAVROS the new vel to the drone
         local_vel_pub.publish(vel_up);
+
+        //Just publishing the actual position of the Drone
+        actualPose_pub.publish(current_pose);
 
         count++;
         if(count==100){
