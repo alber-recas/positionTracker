@@ -45,13 +45,9 @@ OffbPIDvelocity::OffbPIDvelocity():
 
 
 void OffbPIDvelocity::targetUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
-  if(msg->data[0]>0 && msg->data[1]>0 && msg->data[2]>0){
     m_targetPosX = msg->data[0];
     m_targetPosY = msg->data[1];
     m_targetPosZ = msg->data[2];
-  }else{
-    ROS_INFO("Bad target configuration.");
-  }
 }
 
 void OffbPIDvelocity::pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){

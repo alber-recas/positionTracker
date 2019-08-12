@@ -25,24 +25,29 @@ namespace rover_position_simulator {
   public:
       RoverPosSim();
 
-			void updateVel(const Float32::ConstPtr& vel);
+			void updateVelLin(const Float32::ConstPtr& vel);
+			void updateVelAng(const Float32::ConstPtr& vel);
+			void updateRadius(const Float32::ConstPtr& rad);
 			void updateInitPos(const Pose::ConstPtr& initPose);
 			void updateGoalPos(const Pose::ConstPtr& goalPose);
 			Pose linearTrajectory();
+			void circularTrajectory();
 			void updateActualPos();
 
 			bool m_goalReached; //TODO review public members
 			Pose m_init_pos;  	//TODO review public members
 			Pose m_actual_pos;  //TODO review public members
 			Pose m_goal_pos;  	//TODO review public members
-			float m_vel;  			//TODO review public members
+			float m_velLin;  			//TODO review public members
+			float m_velAng;  			//TODO review public members
+			float m_rad;  			//TODO review public members
 			int m_sampleRate;  	//TODO review public members
 
+			double angle;
   private:
     ros::NodeHandle m_nh;
-
 		ros::Publisher m_pos_pub;
-		ros::Subscriber m_vel_sub, m_init_sub, m_goal_sub;
+		ros::Subscriber m_velLin_sub, m_velAng_sub, m_radius_sub, m_init_sub, m_goal_sub;
 
 	};
 }
