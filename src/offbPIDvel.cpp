@@ -76,6 +76,7 @@ void pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
 
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
+    ROS_INFO_STREAM("Updating state of the FCU");
     current_state = *msg;
 }
 
@@ -111,14 +112,15 @@ int main(int argc, char **argv)
 
 	ROS_INFO("Services suscribed node");
     //the setpoint publishing rate MUST be faster than 2Hz
-    ros::Rate rate(30.0);
+    ros::Rate rate(20.0);
 
 	ROS_INFO("Connecting FCU...");
     // wait for FCU connection
     while(ros::ok() && !current_state.connected){
         ros::spinOnce();
         rate.sleep();
-	ROS_INFO("Waiting for FCU connection...");
+        ROS_INFO_STREAM("Current state of FCU: " << current_state.mode);
+	       //ROS_INFO("Waiting for FCU connection...");
     }
 
 	ROS_INFO("FCU connected");
@@ -136,6 +138,7 @@ int main(int argc, char **argv)
         rate.sleep();
     }
 
+
     mavros_msgs::SetMode offb_set_mode;
     offb_set_mode.request.custom_mode = "OFFBOARD";
 
@@ -149,7 +152,7 @@ int main(int argc, char **argv)
     vel_up.twist.linear.z = 0;
     vel_up.twist.angular.x = 0;
     vel_up.twist.angular.y = 0;
-    vel_up.twist.angular.z = 2;
+    vel_up.twist.angular.z = 0;
 
 
     while(ros::ok()){

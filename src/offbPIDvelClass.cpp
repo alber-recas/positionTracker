@@ -27,25 +27,25 @@ namespace offbPIDvelocity {
 
 OffbPIDvelocity::OffbPIDvelocity():
       m_nh("~"),
-      m_pidX(0.2, 3, -3, 0.3, 0, 0),
-      m_pidY(0.2, 3, -3, 0.3, 0, 0),
-      m_pidZ(0.2, 3, -3, 0.3, 0, 0),
+      m_pidX(0.2, 5, -5, 0.3, 0, 0),
+      m_pidY(0.2, 5, -5, 0.3, 0, 0),
+      m_pidZ(0.2, 5, -5, 0.3, 0, 0),
       m_targetPosX(0),m_targetPosY(0),m_targetPosZ(10)
 {
-  m_targetUpdater_sub = m_nh.subscribe<std_msgs::Float64MultiArray>("drone/targetPos", 10, &OffbPIDvelocity::targetUpdater_cb,this);
-  m_actualPose_pub = m_nh.advertise<geometry_msgs::PoseStamped>("drone/actualPose", 10);
-  m_pidUpdater_sub = m_nh.subscribe<std_msgs::Float64MultiArray>("pid/updateCoefficients", 10, &OffbPIDvelocity::pidUpdater_cb,this);
-  m_state_sub = m_nh.subscribe<mavros_msgs::State>("mavros/state", 10, &OffbPIDvelocity::state_cb,this);
-  m_local_pos_sub = m_nh.subscribe<geometry_msgs::PoseStamped>("mavros/local_position/pose", 10, &OffbPIDvelocity::pose_cb,this);
+  m_targetUpdater_sub = m_nh.subscribe<std_msgs::Float64MultiArray>("drone/targetPos", 1, &OffbPIDvelocity::targetUpdater_cb,this);
+  m_actualPose_pub = m_nh.advertise<geometry_msgs::PoseStamped>("drone/actualPose", 1);
+  m_pidUpdater_sub = m_nh.subscribe<std_msgs::Float64MultiArray>("pid/updateCoefficients", 1, &OffbPIDvelocity::pidUpdater_cb,this);
+  m_state_sub = m_nh.subscribe<mavros_msgs::State>("/mavros/state", 10, &OffbPIDvelocity::state_cb,this);
+  m_local_pos_sub = m_nh.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &OffbPIDvelocity::pose_cb,this);
   //m_local_pos_pub = m_nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
-  m_local_vel_pub = m_nh.advertise<geometry_msgs::TwistStamped>("mavros/setpoint_velocity/cmd_vel", 10);
-  m_arming_client = m_nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
-  m_set_mode_client = m_nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+  m_local_vel_pub = m_nh.advertise<geometry_msgs::TwistStamped>("/mavros/setpoint_velocity/cmd_vel", 1);
+  m_arming_client = m_nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
+  m_set_mode_client = m_nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
 }
 
 
 void OffbPIDvelocity::targetUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr& msg){
-  if(msg->data[1]>0 && msg->data[1]>0 && msg->data[2]>0){
+  if(msg->data[0]>0 && msg->data[1]>0 && msg->data[2]>0){
     m_targetPosX = msg->data[0];
     m_targetPosY = msg->data[1];
     m_targetPosZ = msg->data[2];
@@ -67,14 +67,16 @@ void OffbPIDvelocity::pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr&
       m_pidZ.updateCoefficients(0.2,3,-3,msg->data[1],msg->data[2],msg->data[3]);
     break;
     default:
-      ROS_INFO("Bad PID axis selected");
+      ROS_INFO("Wrong PID axis selected");
     break;
   }
-  ROS_INFO("PID Updated with %2f %2f %2f",msg->data[1],msg->data[2],msg->data[3]);
+  ROS_INFO("PID Updated with P:%2f D:%2f I:%2f coefficients",msg->data[1],msg->data[2],msg->data[3]);
 }
 
 void OffbPIDvelocity::state_cb(const mavros_msgs::State::ConstPtr& msg){
-    m_current_state = *msg;
+  //ROS_INFO("Updating drone state");
+  m_current_state = *msg;
+  //ROS_INFO_STREAM("Current state of FCU: "<< m_current_state.mode);
 }
 
 void OffbPIDvelocity::pose_cb(const geometry_msgs::PoseStamped::ConstPtr& msg){
@@ -88,19 +90,23 @@ int main(int argc, char **argv)
 {
   int count=0;
 	ROS_INFO("Entering node");
-  ros::init(argc, argv, "offb_node");
+  ros::init(argc, argv, "offbPIDvelClass_node");
 
   OffbPIDvelocity offbPIDvelocity;
   ROS_INFO("Services suscribed node");
   //the setpoint publishing rate MUST be faster than 2Hz
-  ros::Rate rate(30.0);
+  ros::Rate rate(20.0);
 
 	ROS_INFO("Connecting FCU...");
     // wait for FCU connection
     while(ros::ok() && !offbPIDvelocity.m_current_state.connected){
         ros::spinOnce();
         rate.sleep();
-	      ROS_INFO("Waiting for FCU connection...");
+        if(offbPIDvelocity.m_current_state.connected==true){
+          ROS_INFO_STREAM("Current state of FCU: "<< offbPIDvelocity.m_current_state.mode);
+          ROS_INFO_STREAM("Connected");
+        }
+	      //ROS_INFO("Waiting for FCU connection...");
     }
 
 	ROS_INFO("FCU connected");
@@ -129,7 +135,7 @@ int main(int argc, char **argv)
     offbPIDvelocity.m_vel_up.twist.linear.z = 0;
     offbPIDvelocity.m_vel_up.twist.angular.x = 0;
     offbPIDvelocity.m_vel_up.twist.angular.y = 0;
-    offbPIDvelocity.m_vel_up.twist.angular.z = 2;
+    offbPIDvelocity.m_vel_up.twist.angular.z = 0;
 
     while(ros::ok()){
 
@@ -163,12 +169,19 @@ int main(int argc, char **argv)
         offbPIDvelocity.m_actualPose_pub.publish(offbPIDvelocity.m_current_pose);
 
         count++;
-        if(count==100){
+        if(count==10){
           count=0;
-          ROS_INFO("Velocity: [%.2f,%.2f,%.2f] ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
-          offbPIDvelocity.m_vel_up.twist.linear.x,
-          offbPIDvelocity.m_vel_up.twist.linear.y,
-          offbPIDvelocity.m_vel_up.twist.linear.z,
+          // ROS_INFO("Velocity: [%.2f,%.2f,%.2f] ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
+          // offbPIDvelocity.m_vel_up.twist.linear.x,
+          // offbPIDvelocity.m_vel_up.twist.linear.y,
+          // offbPIDvelocity.m_vel_up.twist.linear.z,
+          // offbPIDvelocity.m_current_pose.pose.position.x,
+          // offbPIDvelocity.m_current_pose.pose.position.y,
+          // offbPIDvelocity.m_current_pose.pose.position.z,
+          // offbPIDvelocity.m_targetPosX,
+          // offbPIDvelocity.m_targetPosY,
+          // offbPIDvelocity.m_targetPosZ );
+          ROS_INFO("ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
           offbPIDvelocity.m_current_pose.pose.position.x,
           offbPIDvelocity.m_current_pose.pose.position.y,
           offbPIDvelocity.m_current_pose.pose.position.z,

@@ -8,6 +8,7 @@
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Vector3.h"
 #include "nav_msgs/GetPlan.h"
+#include <std_msgs/Float64MultiArray.h>
 #include "std_msgs/Float32.h"
 
 
@@ -27,6 +28,7 @@ namespace rover_position_simulator {
 			void updateVel(const Float32::ConstPtr& vel);
 			void updateInitPos(const Pose::ConstPtr& initPose);
 			void updateGoalPos(const Pose::ConstPtr& goalPose);
+			Pose linearTrajectory();
 			void updateActualPos();
 
 			bool m_goalReached; //TODO review public members

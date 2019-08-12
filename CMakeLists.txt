@@ -133,6 +133,8 @@ include_directories(
 ## Declare a C++ executable
 add_executable(roverPosSim src/roverPosSim.cpp)
 add_executable(offbPIDvel src/offbPIDvel.cpp src/pid.cpp)
+add_executable(offbPIDvelClass src/offbPIDvelClass.cpp src/pid.cpp)
+
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -141,6 +143,8 @@ add_executable(offbPIDvel src/offbPIDvel.cpp src/pid.cpp)
 # Specify libraries to link a library or executable target against
 target_link_libraries(roverPosSim  ${catkin_LIBRARIES})
 target_link_libraries(offbPIDvel  ${catkin_LIBRARIES})
+target_link_libraries(offbPIDvelClass  ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
