@@ -36,11 +36,11 @@ namespace offbPIDvelocity {
 	ros::ServiceClient m_arming_client;
 	ros::ServiceClient m_set_mode_client;
 
+private:
 	/*
 	ROS Node handler
 	*/
 	ros::NodeHandle m_nh;
-private:
 
 	/*
 	Callbacks for Subscribers

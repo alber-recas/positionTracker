@@ -92,24 +92,24 @@ void OffbPIDvelocity::updateVelocity(){
   count++;
   if(count==10){
     count=0;
-    // ROS_INFO("Velocity: [%.2f,%.2f,%.2f] ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
-    // m_vel_up.twist.linear.x,
-    // m_vel_up.twist.linear.y,
-    // m_vel_up.twist.linear.z,
-    // m_current_pose.pose.position.x,
-    // m_current_pose.pose.position.y,
-    // m_current_pose.pose.position.z,
-    // m_targetPose.position.x,
-    // m_targetPose.position.y,
-    // m_targetPose.position.z);
-    ROS_INFO("ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f] Radius: %.2f",
+    ROS_INFO("Velocity: [%.2f,%.2f,%.2f] ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
+    m_vel_up.twist.linear.x,
+    m_vel_up.twist.linear.y,
+    m_vel_up.twist.linear.z,
     m_current_pose.pose.position.x,
     m_current_pose.pose.position.y,
     m_current_pose.pose.position.z,
     m_targetPose.position.x,
     m_targetPose.position.y,
-    m_targetPose.position.z,
-    sqrt(pow(2,m_current_pose.pose.position.x)+pow(2,m_current_pose.pose.position.y)));
+    m_targetPose.position.z);
+    // ROS_INFO("ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f] Radius: %.2f",
+    // m_current_pose.pose.position.x,
+    // m_current_pose.pose.position.y,
+    // m_current_pose.pose.position.z,
+    // m_targetPose.position.x,
+    // m_targetPose.position.y,
+    // m_targetPose.position.z,
+    // sqrt(pow(2,m_current_pose.pose.position.x)+pow(2,m_current_pose.pose.position.y)));
   }
 }
 
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 
   ros::Time last_request = ros::Time::now();
 
-  while(ros::ok()){
+  while(ros::ok()){ //&& !arm_cmd.response.success
 
     if( offbPIDvelocity.m_current_state.mode != "OFFBOARD" &&
     (ros::Time::now() - last_request > ros::Duration(5.0))){
@@ -162,14 +162,10 @@ int main(int argc, char **argv)
           if( offbPIDvelocity.m_arming_client.call(arm_cmd) &&
           arm_cmd.response.success){
             ROS_INFO("Vehicle armed");
-            break; //Go out of the while loop
           }
           last_request = ros::Time::now();
         }
       }
-    }
-
-    while(ros::ok()){
       offbPIDvelocity.updateVelocity();
       ros::spinOnce();
       rate.sleep();
