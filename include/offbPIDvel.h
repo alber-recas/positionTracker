@@ -54,11 +54,9 @@ private:
 	/*
 	Publishers and Subscribers related to Drone position.
 		TargetUpdater: will update the next position of the Drone.
-		ActualPose: will publish periodically the actual position of the Drone.
 		pidUpdate: it is a Subscriber with a callback that will upload all the PID coefficients.
 	*/
 	ros::Subscriber m_targetUpdater_sub;
-	ros::Publisher m_actualPose_pub;
 	ros::Subscriber m_pidUpdater_sub;
 
 	/*
@@ -67,11 +65,8 @@ private:
 	ros::Subscriber m_state_sub;
 	ros::Publisher m_local_vel_pub;
 	ros::Subscriber m_local_pos_sub;
-	//ros::Publisher local_pos_pub;
 
 	geometry_msgs::PoseStamped m_current_pose;
-
-	geometry_msgs::TwistStamped m_vel;
 	geometry_msgs::TwistStamped m_vel_up;
 
   geometry_msgs::Pose m_startPose;

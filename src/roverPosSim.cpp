@@ -16,7 +16,6 @@ namespace rover_position_simulator {
 	m_angle(0)
 	{
 		m_pos_pub = m_nh.advertise<geometry_msgs::Pose>( "/offbPIDvelClass/drone/targetPos", 10 );
-		//m_pos_pub = m_nh.advertise<geometry_msgs::Pose>( "/offbPIDvelClass_node/drone/targetPos", 10 );
 		m_velLin_sub = m_nh.subscribe("velLin", 1, &RoverPosSim::updateVelLin, this);
 		m_velAng_sub = m_nh.subscribe("velAng", 1, &RoverPosSim::updateVelAng, this);
 		m_init_sub = m_nh.subscribe("initialPos", 1, &RoverPosSim::updateInitPos, this);
@@ -127,6 +126,7 @@ namespace rover_position_simulator {
 	}
 
 	void RoverPosSim::updateActualPos(){
+		
 		switch(m_trajectory){
 			case Trajectory::linear:
 				linearTrajectory();
@@ -140,7 +140,6 @@ namespace rover_position_simulator {
 		}
 
 		ROS_INFO_STREAM("Position [x,y]: " << m_actual_pos.position.x <<" , "<< m_actual_pos.position.y );
-
 		m_pos_pub.publish(m_actual_pos);
 	}
 

@@ -1,23 +1,14 @@
-#ifndef KOBUKICONTROLLER_H
-#define KOBUKICONTROLLER_H
+#ifndef ROVERPOSSIM_H
+#define ROVERPOSSIM_H
 
 #include <ros/ros.h>
 #include <stdlib.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PointStamped.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/Vector3.h>
-#include <nav_msgs/GetPlan.h>
-#include <std_msgs/Float64MultiArray.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Float32.h>
-
+#include <geometry_msgs/Pose.h>
 
 using namespace geometry_msgs;
-using namespace nav_msgs;
 using namespace std_msgs;
-
-using namespace std;
 
 namespace rover_position_simulator {
 	enum class Trajectory{
@@ -41,7 +32,6 @@ namespace rover_position_simulator {
 		void linearTrajectory();
 		void circularTrajectory();
 
-
 		ros::NodeHandle m_nh;
 		ros::Publisher m_pos_pub;
 		ros::Subscriber m_velLin_sub;
@@ -64,7 +54,6 @@ namespace rover_position_simulator {
 		float m_radius;
 		double m_angle;
 
-
 	};
 }
-#endif // RRTSTAR_H
+#endif //ROVERPOSSIM_H

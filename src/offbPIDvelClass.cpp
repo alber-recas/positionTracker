@@ -32,11 +32,9 @@ OffbPIDvelocity::OffbPIDvelocity():
       m_pidZ(0.2, 5, -5, 0.3, 0, 0)
 {
   m_targetUpdater_sub = m_nh.subscribe<geometry_msgs::Pose>("drone/targetPos", 1, &OffbPIDvelocity::targetUpdater_cb,this);
-  m_actualPose_pub = m_nh.advertise<geometry_msgs::PoseStamped>("drone/actualPose", 1);
   m_pidUpdater_sub = m_nh.subscribe<std_msgs::Float64MultiArray>("pid/updateCoefficients", 1, &OffbPIDvelocity::pidUpdater_cb,this);
   m_state_sub = m_nh.subscribe<mavros_msgs::State>("/mavros/state", 10, &OffbPIDvelocity::state_cb,this);
   m_local_pos_sub = m_nh.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &OffbPIDvelocity::pose_cb,this);
-  //m_local_pos_pub = m_nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
   m_local_vel_pub = m_nh.advertise<geometry_msgs::TwistStamped>("/mavros/setpoint_velocity/cmd_vel", 1);
   m_arming_client = m_nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
   m_set_mode_client = m_nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
@@ -85,9 +83,6 @@ void OffbPIDvelocity::updateVelocity(){
 
   //Send through MAVROS the new vel to the drone
   m_local_vel_pub.publish(m_vel_up);
-
-  //Just publishing the actual position of the Drone
-  m_actualPose_pub.publish(m_current_pose);
 
   count++;
   if(count==10){
