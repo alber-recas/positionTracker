@@ -131,7 +131,7 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 
 ## Declare a C++ executable
-add_executable(offbPIDvel src/offbPIDvel.cpp src/pid.cpp)
+#add_executable(offbPIDvel src/offbPIDvel.cpp src/pid.cpp)
 add_executable(offbPIDvelClass src/offbPIDvelClass.cpp src/pid.cpp)
 
 
@@ -140,7 +140,7 @@ add_executable(offbPIDvelClass src/offbPIDvelClass.cpp src/pid.cpp)
 #add_dependencies(roverPosSim ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
-target_link_libraries(offbPIDvel  ${catkin_LIBRARIES})
+#target_link_libraries(offbPIDvel  ${catkin_LIBRARIES})
 target_link_libraries(offbPIDvelClass  ${catkin_LIBRARIES})
 
 

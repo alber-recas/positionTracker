@@ -27,9 +27,9 @@ namespace offbPIDvelocity {
 
 OffbPIDvelocity::OffbPIDvelocity():
       m_nh("~"),
-      m_pidX(0.2, 5, -5, 0.3, 0, 0),
-      m_pidY(0.2, 5, -5, 0.3, 0, 0),
-      m_pidZ(0.2, 5, -5, 0.3, 0, 0)
+      m_pidX(0.2, 5, -5, 3, 0.1, 0.05),
+      m_pidY(0.2, 5, -5, 3, 0.1, 0.05),
+      m_pidZ(0.2, 5, -5, 3, 0.1, 0.05)
 {
   m_targetUpdater_sub = m_nh.subscribe<geometry_msgs::Pose>("drone/targetPos", 1, &OffbPIDvelocity::targetUpdater_cb,this);
   m_pidUpdater_sub = m_nh.subscribe<std_msgs::Float64MultiArray>("pid/updateCoefficients", 1, &OffbPIDvelocity::pidUpdater_cb,this);
@@ -51,18 +51,20 @@ void OffbPIDvelocity::pidUpdater_cb(const std_msgs::Float64MultiArray::ConstPtr&
     case 0:
       m_pidX.updateCoefficients(0.2,5,-5,msg->data[1],msg->data[2],msg->data[3]);
       m_pidY.updateCoefficients(0.2,5,-5,msg->data[1],msg->data[2],msg->data[3]); //temporal solution
+      ROS_INFO("PID for X axis updated with P:%2f D:%2f I:%2f coefficients",msg->data[1],msg->data[2],msg->data[3]);
     break;
     case 1:
       m_pidY.updateCoefficients(0.2,5,-5,msg->data[1],msg->data[2],msg->data[3]);
+      ROS_INFO("PID for Y axis updated with P:%2f D:%2f I:%2f coefficients",msg->data[1],msg->data[2],msg->data[3]);
     break;
     case 2:
       m_pidZ.updateCoefficients(0.2,5,-5,msg->data[1],msg->data[2],msg->data[3]);
+      ROS_INFO("PID for Z axis updated with P:%2f D:%2f I:%2f coefficients",msg->data[1],msg->data[2],msg->data[3]);
     break;
     default:
       ROS_INFO("Wrong PID axis selected");
     break;
   }
-  ROS_INFO("PID Updated with P:%2f D:%2f I:%2f coefficients",msg->data[1],msg->data[2],msg->data[3]);
 }
 
 void OffbPIDvelocity::state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -85,7 +87,7 @@ void OffbPIDvelocity::updateVelocity(){
   m_local_vel_pub.publish(m_vel_up);
 
   count++;
-  if(count==10){
+  if(count==500){
     count=0;
     ROS_INFO("Velocity: [%.2f,%.2f,%.2f] ActualPosition: [%.3f,%.3f,%.3f] TargetPosition: [%.1f,%.1f,%.1f]",
     m_vel_up.twist.linear.x,
