@@ -1,4 +1,4 @@
-# offb
+# Position tracker for drones
 
 Offboard control using [ROS](http://www.ros.org) and [MAVROS](https://github.com/mavlink/mavros) for [PX4](https://github.com/PX4/Firmware).
 
