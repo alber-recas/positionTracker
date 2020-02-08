@@ -15,28 +15,12 @@ The initial implementation is taken from the [MAVROS offboard control example](h
 ### Building
 
 ```
-cd ~/wherever/
-git clone https://github.com/julianoes/offb.git
-cd ~/catkin_ws
-ln -s ~/wherever/offb ~/catkin_ws/src/offb
-catkin_make
+TODO
 ```
 
 ### Running
 
 Start PX4 with e.g.:
 ```
-make posix gazebo
-```
-
-Then start MAVROS:
-
-```
-roslaunch mavros px4.launch fcu_url:="udp://:14540@127.0.0.1:14557"
-```
-
-And finally offb:
-
-```
-roslaunch offb offb.launch
+TODO
 ```
