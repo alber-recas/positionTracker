@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>rover</name>
+  <name>positionTracker</name>
   <version>0.1.0</version>
   <description>Offboard control using ROS and MAVROS for PX4</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <maintainer email="alberto.degracia@i2a2.upm.es">Alberto de Gracia Recas</maintainer>
+  <maintainer email="alber_recas@hotmail.com">Alberto de Gracia Recas</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->

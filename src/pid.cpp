@@ -13,6 +13,7 @@ class PIDImpl
         PIDImpl( double dt, double max, double min, double Kp, double Kd, double Ki );
         ~PIDImpl();
         double calculate( double setpoint, double pv );
+        void updateCoefficients( double dt, double max, double min, double Kp, double Kd, double Ki);
 
     private:
         double _dt;
@@ -34,7 +35,12 @@ double PID::calculate( double setpoint, double pv )
 {
     return pimpl->calculate(setpoint,pv);
 }
-PID::~PID() 
+void PID::updateCoefficients( double dt, double max, double min, double Kp, double Kd, double Ki  )
+{
+  return pimpl->updateCoefficients(dt, max, min, Kp, Kd, Ki);
+}
+
+PID::~PID()
 {
     delete pimpl;
 }
@@ -55,9 +61,19 @@ PIDImpl::PIDImpl( double dt, double max, double min, double Kp, double Kd, doubl
 {
 }
 
+void PIDImpl::updateCoefficients( double dt, double max, double min, double Kp, double Kd, double Ki  )
+{
+  _dt= dt;
+  _max=max;
+  _min=min;
+  _Kp=Kp;
+  _Kd=Kd;
+  _Ki=Ki;
+}
+
 double PIDImpl::calculate( double setpoint, double pv )
 {
-    
+
     // Calculate error
     double error = setpoint - pv;
 
